@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F2E 實作</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+        #message_block {
+            color: red;
+            padding: 1em;
+            font-size: 1.5em;
+        }
+
+        .title_text_proccessing {
+            padding-left: 0.5em;
+            border-left: #009f49 solid 5px;
+            font-size: 1.5em;
+        }
+
+        .title_text_completed {
+            padding-left: 0.5em;
+            border-left: #009f49 solid 5px;
+            font-size: 1.5em;
+        }
+
+        /* 寬度 XS 以上 */
+        @media only screen and (min-width: 577px) {
+            .no_data {
+                font-size: 1.5em;
+                width: 36rem;
+                max-width: 42rem;
+            }
+
+            .f2e_order_card {
+                max-width: 42rem;
+            }
+
+            .f2e_order_card_body {
+                line-height: 90px;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .f2e_order_image_div {
+                text-align: center;
+                line-height: 90px;
+                display: flex;
+                align-items: center;
+            }
+
+            .f2e_order_image_img {
+                width: 100%;
+                height: auto;
+                padding: 5px;
+            }
+
+            .f2e_order_text {
+                line-height: 90px;
+            }
+
+            .f2e_order_status {
+                line-height: 40px;
+            }
+
+            .order_status_text_proccessing {
+                color: #009b4a;
+                font-size: 1.45em;
+            }
+
+            .order_status_text_completed {
+                color: #000;
+                font-size: 1.45em;
+            }
+
+            .order_status_text_default {
+                color: #000;
+                font-size: 1.45em;
+            }
+
+            .order_date_text {
+                font-size: 1.45em;
+                position: absolute;
+                right: 0;
+                text-align: right;
+            }
+
+            .order_title_text {
+                font-size: 1.5em;
+                line-height: 40px;
+                max-height: 80px;
+                color: #444;
+
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                white-space: normal;
+            }
+
+            .f2e_order_link_arrow {
+                line-height: 130px;
+            }
+
+            .order_link_arrow {
+                cursor: pointer;
+                font-size: 1.8em;
+                color: #AAA;
+            }
+
+            .every_order_item {
+                border-bottom: #BBB solid 1px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            .every_order_item_last {
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+        }
+
+        /* 寬度 XS 以下 */
+        @media only screen and (max-width: 576px) {
+            .no_data {
+                font-size: 1.5em;
+                width: 36rem;
+                max-width: 36rem;
+            }
+
+            .f2e_order_card {
+                max-width: 36rem;
+            }
+
+            .f2e_order_card_body {
+                line-height: 80px;
+            }
+
+            .f2e_order_image_div {
+                text-align: center;
+            }
+
+            .f2e_order_image_img {
+                width: 64%;
+                height: auto;
+                padding: 7px;
+            }
+
+            .f2e_order_text {
+                line-height: 80px;
+                padding-top: 10px;
+            }
+
+            .f2e_order_status {
+                line-height: 45px;
+            }
+
+            .order_status_text_proccessing {
+                color: #009b4a;
+                font-size: 1.4em;
+            }
+
+            .order_status_text_completed {
+                color: #000;
+                font-size: 1.4em;
+            }
+
+            .order_status_text_default {
+                color: #000;
+                font-size: 1.4em;
+            }
+
+            .order_date_text {
+                font-size: 1.4em;
+                position: absolute;
+                right: 1.3em;
+                text-align: right;
+            }
+
+            .order_title_text {
+                font-size: 1.4em;
+                line-height: 1.45em;
+                color: #444;
+            }
+
+            .f2e_order_link_arrow {
+                line-height: 110px;
+            }
+
+            .order_link_arrow {
+                cursor: pointer;
+                font-size: 1.8em;
+                color: #AAA;
+            }
+
+            .every_order_item {
+                border-bottom: #AAA solid 2px;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            .every_order_item_last {
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Order HTML Start -->
+    <div class="container">
+        <!-- Loading Start -->
+        <div id="loading" class="spinner-border text-success" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <!-- Loading End -->
+        <!-- Message Start -->
+        <div id="message_block" class="text-center"></div>
+        <!-- Message End -->
+
+        <div id="data_part" class="row">
+            <div class="col-xs-6">
+                <!-- 進行中 Card Start -->
+                <div class="card f2e_order_card">
+                    <div class="card-header">
+                        <span class="title_text_proccessing">進行中</span>
+                    </div>
+                    <!-- Item 區塊 -->
+                    <div class="card-body f2e_order_card_body" id="proccessing_block">
+                        <div class='text-center no_data'>資料載入中</div>
+                    </div>
+                    <!-- Item 區塊 -->
+                </div>
+                <!-- 進行中 Card End -->
+                <!-- 已完成 Card Start -->
+                <div class="card f2e_order_card">
+                    <div class="card-header">
+                        <span class="title_text_completed">已完成</span>
+                    </div>
+                    <!-- Item 區塊 -->
+                    <div class="card-body f2e_order_card_body" id="completed_block">
+                        <div class='text-center no_data'>資料載入中</div>
+                    </div>
+                    <!-- Item 區塊 -->
+                </div>
+                <!-- 已完成 Card End -->
+            </div>
+        </div>
+    </div>
+    <!-- Order HTML End -->
+
+    <!-- JS Part -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            init_page();
+        });
+
+        /* 頁面初始化 */
+        function init_page() {
+            // 1. loading 圖案
+            $("#data_part").hide();
+            $("#loading").show();
+            $("#message_block").text("");
+
+            // 2. 取得資料
+            var raw_order_data = get_orders_by_api();
+
+            // 3. 整理資料，區分開 進行中、已完成，並按照日期排序
+            var orders = arrange_data(raw_order_data);
+
+            // 4. 建構 HTML 並 append 到對應區塊
+            build_elements(orders);
+        }
+
+        /* 建立一個進行中的 Element */
+        function build_proccessing_element(image_src, status_text, status, date_text, title, last_one) {
+            var html = "";
+            image_src = image_src || "https://static.oopocket.com/store/iconTreemall@3x.png";
+            status_text = status_text || "";
+            date_text = date_text || "";
+            title_text = title || "";
+            status = String([1, 2, 3, 4].indexOf(parseInt(status)) >= 0 ? status : 0);
+            if (status_text.length > 0 && date_text.length > 0 && title_text.length > 0) {
+                html = "<div class='row " + (last_one === true ? "every_order_item_last" : "every_order_item") + "'> \
+                    <div class='col-sm-3 f2e_order_image_div'> \
+                        <img class='f2e_order_image_img' \
+                            src='" + image_src + "'> \
+                    </div> \
+                    <div class='col-sm-8 f2e_order_text'> \
+                        <div class='f2e_order_status' data-status-code='"+ status + "'> \
+                            <span class='order_status_text_proccessing'>" + status_text + "</span> \
+                            <span class='order_date_text'>預計出貨： " + date_text + "</span> \
+                        </div> \
+                        <div class='order_title_text'> \
+                            "+ title_text + " \
+                        </div> \
+                    </div> \
+                    <div class='col-sm-1 d-none d-sm-block f2e_order_link_arrow'> \
+                        <span class='order_link_arrow'> \
+                            <i class='fa fa-chevron-right' aria-hidden='true'></i> \
+                        </span> \
+                    </div> \
+                </div>";
+            }
+            return html;
+        }
+
+        /* 建立一個已完成的 Element */
+        function build_completed_element(image_src, status_text, status, date_text, title, last_one) {
+            var html = "";
+            image_src = image_src || "https://static.oopocket.com/store/iconTreemall@3x.png";
+            status_text = status_text || "";
+            date_text = date_text || "";
+            title_text = title || "";
+            status = String([1, 2, 3, 4].indexOf(parseInt(status)) >= 0 ? status : 0);
+            if (status_text.length > 0 && date_text.length > 0 && title_text.length > 0) {
+                html = "<div class='row " + (last_one === true ? "every_order_item_last" : "every_order_item") + "'> \
+                    <div class='col-sm-3 f2e_order_image_div'> \
+                        <img class='f2e_order_image_img' \
+                            src='" + image_src + "'> \
+                    </div> \
+                    <div class='col-sm-8 f2e_order_text'> \
+                        <div class='f2e_order_status' data-status-code='"+ status + "'> \
+                            <span class='order_status_text_completed'>" + status_text + "</span> \
+                        </div> \
+                        <div class='order_title_text'> \
+                            "+ title_text + " \
+                        </div> \
+                    </div> \
+                    <div class='col-sm-1 d-none d-sm-block f2e_order_link_arrow'> \
+                        <span class='order_link_arrow'> \
+                            <i class='fa fa-chevron-right' aria-hidden='true'></i> \
+                        </span> \
+                    </div> \
+                </div>";
+            }
+            return html;
+        }
+
+        /* 建構 HTML 並 append 到對應區塊 */
+        function build_elements(orders) {
+            // 4.1 先清除區塊
+            $("#proccessing_block").empty();
+            $("#completed_block").empty();
+
+            var message = "";
+
+            // 4.2 取得資料
+            var proccessing = orders.proccessing || [];
+            var completed = orders.completed || [];
+
+            var html = "";
+            // 4.3 『進行中』區塊
+            if (proccessing.length > 0) {
+                var i = 1;
+                proccessing.forEach(function (this_order) {
+                    try {
+                        html = "";
+                        html = build_proccessing_element(this_order.logo, this_order.status.type, this_order.status.code, this_order.date, this_order.name, i === proccessing.length);
+                        if (html.length > 0) {
+                            $("#proccessing_block").append(html);
+                        }
+                        i++;
+                    } catch (e) {
+                        // console.log("有『進行中』資料出錯");
+                        console.log(e);
+                        // console.log(this_order);
+                        message = "有訂單資料出錯，請聯絡系統管理員 Error Code 001";
+                    }
+
+                });
+            } else {
+                $("#proccessing_block").append("<div class='text-center no_data'>無資料</div>");
+            }
+
+            // 4.4 『已完成』區塊
+            if (completed.length > 0) {
+                var j = 1;
+                completed.forEach(function (this_order) {
+                    try {
+                        html = "";
+                        html = build_completed_element(this_order.logo, this_order.status.type, this_order.status.code, this_order.date, this_order.name, j === completed.length);
+                        if (html.length > 0) {
+                            $("#completed_block").append(html);
+                        }
+                        j++;
+                    } catch (e) {
+                        // console.log("有『已完成』資料出錯");
+                        console.log(e);
+                        // console.log(this_order);
+                        message = "有訂單資料出錯，請聯絡系統管理員 Error Code 002";
+                    }
+                });
+            } else {
+                $("#completed_block").append("<div class='text-center no_data'>無資料</div>");
+            }
+
+            // 4.5 如過有錯誤訊息
+            if (message.length > 0) {
+                $("#message_block").text(message);
+            }
+
+            // 5. loading 相關顯示關閉
+            $("#data_part").fadeIn(50);
+            $("#loading").hide();
+
+        }
+
+        /* 排序用函數 - 針對傳入的物件，比較其 date 屬性 (如無法正確解析日期 - 不更動順序) */
+        function sort_by_element_date_desc(a, b) {
+            var result = 0;
+            var a_date_array = (a.date || "").split("/");
+            var b_date_array = (b.date || "").split("/");
+            if (a_date_array.length == b_date_array.length && b_date_array.length == 3) {
+                var a_year = parseInt(a_date_array[0]);
+                var a_mon = parseInt(a_date_array[1]);
+                var a_day = parseInt(a_date_array[2]);
+                var b_year = parseInt(b_date_array[0]);
+                var b_mon = parseInt(b_date_array[1]);
+                var b_day = parseInt(b_date_array[2]);
+                if (!isNaN(a_year) && !isNaN(a_mon) && !isNaN(a_day) && !isNaN(b_year) && !isNaN(b_mon) && !isNaN(b_day)) {
+                    var aDatetime = (new Date(a_year + 1911, a_mon, a_day)).getTime();
+                    var bDatetime = (new Date(b_year + 1911, b_mon, b_day)).getTime();
+                    result = bDatetime - aDatetime; /* DESC */
+                }
+            }
+            return result;
+        }
+
+        /* 整理資料：(1)分類 (2)按照日期排序 */
+        function arrange_data(raw_order_data) {
+            var proccessing = [];
+            var completed = [];
+            var abnormal = [];
+            var raw_orders = raw_order_data.orders || [];
+
+            // (1)分類
+            raw_orders.forEach(function (raw_order) {
+                var stat_code = parseInt(raw_order.status.code || null);
+                if (stat_code == 1 || stat_code == 2) {
+                    proccessing.push(raw_order);
+                } else if (stat_code == 3 || stat_code == 4) {
+                    completed.push(raw_order);
+                } else {
+                    // 狀態異常者: NOT IN (1,2,3,4), NaN ... and so on
+                    abnormal.push(raw_order);
+                }
+            });
+
+            // (2)排序 date DESC
+            proccessing.sort(sort_by_element_date_desc);
+            completed.sort(sort_by_element_date_desc);
+
+            if (abnormal.length > 0) {
+                // console.log("出現狀態異常訂單");
+                // console.log(abnormal);
+                $("#message_block").text("出現狀態異常訂單，請聯絡系統管理員 Error Code 003");
+            }
+
+            return {
+                proccessing: proccessing,
+                completed: completed,
+                abnormal: abnormal
+            }
+        }
+
+        /* 從 Api 取得資料 */
+        function get_orders_by_api() {
+            // 尚無真實API，先回傳假資料
+            return {
+                orders: [
+                    {
+                        name: 'Livi優活 抽取式衛生紙(100抽x10包x10串/箱)',
+                        logo: 'https://static.oopocket.com/store/iconTreemall@3x.png',
+                        status: {
+                            code: 3,
+                            type: '已取消'
+                        },
+                        date: '107/6/12'
+                    },
+                    {
+                        name: 'BALMUDA The Toaster 百慕達烤麵包機-黑色',
+                        logo: 'https://static.oopocket.com/store/iconTreemall@3x.png',
+                        status: {
+                            code: 2,
+                            type: '已成立'
+                        },
+                        date: '108/7/21'
+                    },
+                    {
+                        name: '贈-短慧萬用鍋HD2133+三合一濾網「LG樂金」韓國原裝...',
+                        logo: 'https://static.oopocket.com/store/iconTreemall@3x.png',
+                        status: {
+                            code: 1,
+                            type: '處理中'
+                        },
+                        date: '108/6/2'
+                    },
+                    {
+                        name: 'Apple AirPds 2',
+                        logo: 'https://static.oopocket.com/store/iconTreemall@3x.png',
+                        status: {
+                            code: 4,
+                            type: '已送達'
+                        },
+                        date: '108/3/02'
+                    }
+                ]
+            };
+        }
+
+    </script>
+    <!-- JS Part -->
+</body>
+
+</html>
